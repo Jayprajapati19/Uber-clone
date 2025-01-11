@@ -1,20 +1,22 @@
+const bcrypt = require("bcrypt");
 const userModel = require("../models/user.model");
 const userService = require("../services/user.service");
 const { validationResult } = require("express-validator");
 
 module.exports.registerUser = async (req, res, next) => {
-  const erros = validationResult(req);
-  if (!erros.isEmpty()) {
-    return res.status(400).json({ errors: erros.array() });
+  const errors = validationResult(req);
+  if (!errors.isEmpty()) {
+    return res.status(400).json({ errors: errors.array() });
   }
 
-  const { firstname, lastname, email, password } = req.body;
+  const { fullname, email, password } = req.body;
 
-  const hashedPassword = await userModel.hashedPassword(password);
+  // Hash password using bcrypt
+  const hashedPassword = await bcrypt.hash(password, 10); // Adjust salt rounds as needed
 
-  const user = await userService.creareUser({
-    firstname,
-    lastname,
+  const user = await userService.createUser({
+    firstname: fullname.firstname, // Ensure fullname has correct structure
+    lastname: fullname.lastname,
     email,
     password: hashedPassword,
   });

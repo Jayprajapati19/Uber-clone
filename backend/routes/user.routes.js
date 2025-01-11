@@ -7,7 +7,7 @@ router.post(
   "/register",
   [
     body("email").isEmail().withMessage("Invalid email"),
-    body("fullname.fistname")
+    body("fullname.firstname")
       .isLength({ min: 3 })
       .withMessage("First name must be at least 3 characters long"),
     body("password")
@@ -16,7 +16,5 @@ router.post(
   ],
   userController.registerUser
 );
-
-32min
 
 module.exports = router;
