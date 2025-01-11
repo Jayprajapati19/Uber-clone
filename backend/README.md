@@ -3,8 +3,6 @@
 ## Overview
 The `/users/register` endpoint allows new users to register by providing their personal details. This endpoint validates the input data, stores the user information securely, and returns appropriate responses.
 
-
-
 ## Endpoints
 
 ### Register User
@@ -166,6 +164,95 @@ The request body must be in JSON format and include the following fields:
 }
 ```
 
+### Get User Profile
+
+The `/users/profile` endpoint allows authenticated users to retrieve their profile information.
+
+```
+GET /users/profile
+```
+
+#### Headers
+The request must include the following headers:
+
+| Header        | Type   | Required | Description                       |
+|---------------|--------|----------|-----------------------------------|
+| Authorization | string | Yes      | Bearer token for authentication   |
+
+#### Response
+
+##### Success Response (200)
+```json
+{
+  "_id": "user_id_here",
+  "fullname": {
+    "firstname": "John",
+    "lastname": "Doe"
+  },
+  "email": "john.doe@example.com"
+}
+```
+
+##### Error Responses
+
+###### Unauthorized (401)
+```json
+{
+  "status": "error",
+  "message": "Unauthorized"
+}
+```
+
+###### Internal Server Error (500)
+```json
+{
+  "status": "error",
+  "message": "Internal server error occurred"
+}
+```
+
+### Logout User
+
+The `/users/logout` endpoint allows authenticated users to log out by invalidating their token.
+
+```
+GET /users/logout
+```
+
+#### Headers
+The request must include the following headers:
+
+| Header        | Type   | Required | Description                       |
+|---------------|--------|----------|-----------------------------------|
+| Authorization | string | Yes      | Bearer token for authentication   |
+
+#### Response
+
+##### Success Response (200)
+```json
+{
+  "message": "Logged out successfully"
+}
+```
+
+##### Error Responses
+
+###### Bad Request (400)
+```json
+{
+  "status": "error",
+  "message": "Token not provided"
+}
+```
+
+###### Internal Server Error (500)
+```json
+{
+  "status": "error",
+  "message": "Internal server error occurred"
+}
+```
+
 ## Example Usage
 
 ### cURL
@@ -189,6 +276,16 @@ curl -X POST https://api.example.com/users/login \
     "email": "john.doe@example.com",
     "password": "Welcome123"
   }'
+```
+
+```bash
+curl -X GET https://api.example.com/users/profile \
+  -H "Authorization: Bearer jwt_token_here"
+```
+
+```bash
+curl -X GET https://api.example.com/users/logout \
+  -H "Authorization: Bearer jwt_token_here"
 ```
 
 ### JavaScript (Fetch API)
@@ -222,6 +319,30 @@ fetch('https://api.example.com/users/login', {
     email: 'john.doe@example.com',
     password: 'Welcome123'
   })
+})
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.error('Error:', error));
+```
+
+```javascript
+fetch('https://api.example.com/users/profile', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer jwt_token_here'
+  }
+})
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.error('Error:', error));
+```
+
+```javascript
+fetch('https://api.example.com/users/logout', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer jwt_token_here'
+  }
 })
 .then(response => response.json())
 .then(data => console.log(data))
