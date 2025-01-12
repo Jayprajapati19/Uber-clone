@@ -86,6 +86,124 @@ The request body must be in JSON format and include the following fields:
 }
 ```
 
+### Register Captain
+```
+POST /captains/register
+```
+
+#### Request Body
+The request body must be in JSON format and include the following fields:
+
+| Field        | Type     | Required | Description                                    |
+|--------------|----------|----------|------------------------------------------------|
+| fullname     | object   | Yes      | An object containing `firstname` and `lastname`|
+| firstname    | string   | Yes      | Captain's first name (min 3 characters)        |
+| lastname     | string   | No       | Captain's last name (min 3 characters)         |
+| email        | string   | Yes      | Captain's email address (valid email format)   |
+| password     | string   | Yes      | Captain's password (min 6 characters)          |
+| vehicle      | object   | Yes      | An object containing vehicle details           |
+| color        | string   | Yes      | Vehicle color (min 3 characters)               |
+| plate        | string   | Yes      | Vehicle plate number (min 3 characters)        |
+| capacity     | number   | Yes      | Vehicle capacity (min 1)                       |
+| vehicleType  | string   | Yes      | Vehicle type (car, motorcycle, auto)           |
+
+#### Example Request Body
+```json
+{
+  "fullname": {
+    "firstname": "Jane",
+    "lastname": "Doe"
+  },
+  "email": "jane.doe@example.com",
+  "password": "SecurePass123",
+  "vehicle": {
+    "color": "Red",
+    "plate": "XYZ123",
+    "capacity": 4,
+    "vehicleType": "car"
+  }
+}
+```
+
+#### Response
+
+##### Success Response (201)
+```json
+{
+  "token": "jwt_token_here",
+  "captain": {
+    "_id": "captain_id_here",
+    "fullname": {
+      "firstname": "Jane",
+      "lastname": "Doe"
+    },
+    "email": "jane.doe@example.com",
+    "vehicle": {
+      "color": "Red",
+      "plate": "XYZ123",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+  }
+}
+```
+
+##### Error Responses
+
+###### Validation Error (400)
+```json
+{
+  "errors": [
+    {
+      "msg": "Invalid email",
+      "param": "email",
+      "location": "body"
+    },
+    {
+      "msg": "First name must be at least 3 characters long",
+      "param": "fullname.firstname",
+      "location": "body"
+    },
+    {
+      "msg": "Color must be at least 3 characters long",
+      "param": "vehicle.color",
+      "location": "body"
+    },
+    {
+      "msg": "Plate must be at least 3 characters long",
+      "param": "vehicle.plate",
+      "location": "body"
+    },
+    {
+      "msg": "Capacity must be at least 1",
+      "param": "vehicle.capacity",
+      "location": "body"
+    },
+    {
+      "msg": "Invalid vehicle type",
+      "param": "vehicle.vehicleType",
+      "location": "body"
+    }
+  ]
+}
+```
+
+###### Email Already Exists (409)
+```json
+{
+  "status": "error",
+  "message": "Email already exists"
+}
+```
+
+###### Internal Server Error (500)
+```json
+{
+  "status": "error",
+  "message": "Internal server error occurred"
+}
+```
+
 ### Login User
 
 The `/users/login` endpoint allows existing users to log in by providing their email and password. This endpoint validates the input data, checks the credentials, and returns appropriate responses.
@@ -168,6 +286,8 @@ The request body must be in JSON format and include the following fields:
 
 The `/users/profile` endpoint allows authenticated users to retrieve their profile information.
 
+Required the current user and blacklist the token provided in cookie or headers
+
 ```
 GET /users/profile
 ```
@@ -212,6 +332,7 @@ The request must include the following headers:
 ```
 
 ### Logout User
+Logout the current user and blacklis the token provided in cookie or headers
 
 The `/users/logout` endpoint allows authenticated users to log out by invalidating their token.
 
@@ -288,6 +409,25 @@ curl -X GET https://api.example.com/users/logout \
   -H "Authorization: Bearer jwt_token_here"
 ```
 
+```bash
+curl -X POST https://api.example.com/captains/register \
+  -H "Content-Type: application/json" \
+  -d '{
+    "fullname": {
+      "firstname": "Jane",
+      "lastname": "Doe"
+    },
+    "email": "jane.doe@example.com",
+    "password": "SecurePass123",
+    "vehicle": {
+      "color": "Red",
+      "plate": "XYZ123",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+  }'
+```
+
 ### JavaScript (Fetch API)
 ```javascript
 fetch('https://api.example.com/users/register', {
@@ -343,6 +483,32 @@ fetch('https://api.example.com/users/logout', {
   headers: {
     'Authorization': 'Bearer jwt_token_here'
   }
+})
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.error('Error:', error));
+```
+
+```javascript
+fetch('https://api.example.com/captains/register', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    fullname: {
+      firstname: 'Jane',
+      lastname: 'Doe'
+    },
+    email: 'jane.doe@example.com',
+    password: 'SecurePass123',
+    vehicle: {
+      color: 'Red',
+      plate: 'XYZ123',
+      capacity: 4,
+      vehicleType: 'car'
+    }
+  })
 })
 .then(response => response.json())
 .then(data => console.log(data))
