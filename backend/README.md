@@ -1,7 +1,7 @@
-# User Registration API Documentation
+# API Documentation
 
 ## Overview
-The `/users/register` endpoint allows new users to register by providing their personal details. This endpoint validates the input data, stores the user information securely, and returns appropriate responses.
+This documentation provides details about the API endpoints for user and captain registration, login, profile retrieval, and logout.
 
 ## Endpoints
 
@@ -94,33 +94,19 @@ POST /captains/register
 #### Request Body
 The request body must be in JSON format and include the following fields:
 
-| Field        | Type     | Required | Description                                    |
-|--------------|----------|----------|------------------------------------------------|
-| fullname     | object   | Yes      | An object containing `firstname` and `lastname`|
-| firstname    | string   | Yes      | Captain's first name (min 3 characters)        |
-| lastname     | string   | No       | Captain's last name (min 3 characters)         |
-| email        | string   | Yes      | Captain's email address (valid email format)   |
-| password     | string   | Yes      | Captain's password (min 6 characters)          |
-| vehicle      | object   | Yes      | An object containing vehicle details           |
-| color        | string   | Yes      | Vehicle color (min 3 characters)               |
-| plate        | string   | Yes      | Vehicle plate number (min 3 characters)        |
-| capacity     | number   | Yes      | Vehicle capacity (min 1)                       |
-| vehicleType  | string   | Yes      | Vehicle type (car, motorcycle, auto)           |
-
-#### Example Request Body
 ```json
 {
   "fullname": {
-    "firstname": "Jane",
-    "lastname": "Doe"
+    "firstname": "Jane", // Required, min 3 characters
+    "lastname": "Doe" // Optional, min 3 characters
   },
-  "email": "jane.doe@example.com",
-  "password": "SecurePass123",
+  "email": "jane.doe@example.com", // Required, valid email format
+  "password": "SecurePass123", // Required, min 6 characters
   "vehicle": {
-    "color": "Red",
-    "plate": "XYZ123",
-    "capacity": 4,
-    "vehicleType": "car"
+    "color": "Red", // Required, min 3 characters
+    "plate": "XYZ123", // Required, min 3 characters
+    "capacity": 4, // Required, min 1
+    "vehicleType": "car" // Required, one of ["car", "motorcycle", "auto"]
   }
 }
 ```
@@ -205,9 +191,6 @@ The request body must be in JSON format and include the following fields:
 ```
 
 ### Login User
-
-The `/users/login` endpoint allows existing users to log in by providing their email and password. This endpoint validates the input data, checks the credentials, and returns appropriate responses.
-
 ```
 POST /users/login
 ```
@@ -240,7 +223,6 @@ The request body must be in JSON format and include the following fields:
       "firstname": "John",
       "lastname": "Doe"
     },
-    
     "email": "john.doe@example.com"
   }
 }
@@ -282,12 +264,81 @@ The request body must be in JSON format and include the following fields:
 }
 ```
 
+### Login Captain
+```
+POST /captains/login
+```
+
+#### Request Body
+The request body must be in JSON format and include the following fields:
+
+```json
+{
+  "email": "jane.doe@example.com", // Required, valid email format
+  "password": "SecurePass123" // Required, min 6 characters
+}
+```
+
+#### Response
+
+##### Success Response (200)
+```json
+{
+  "token": "jwt_token_here",
+  "captain": {
+    "_id": "captain_id_here",
+    "fullname": {
+      "firstname": "Jane",
+      "lastname": "Doe"
+    },
+    "email": "jane.doe@example.com",
+    "vehicle": {
+      "color": "Red",
+      "plate": "XYZ123",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+  }
+}
+```
+
+##### Error Responses
+
+###### Validation Error (400)
+```json
+{
+  "errors": [
+    {
+      "msg": "Invalid email",
+      "param": "email",
+      "location": "body"
+    },
+    {
+      "msg": "Password must be at least 6 characters long",
+      "param": "password",
+      "location": "body"
+    }
+  ]
+}
+```
+
+###### Invalid Credentials (401)
+```json
+{
+  "status": "error",
+  "message": "Invalid email or password"
+}
+```
+
+###### Internal Server Error (500)
+```json
+{
+  "status": "error",
+  "message": "Internal server error occurred"
+}
+```
+
 ### Get User Profile
-
-The `/users/profile` endpoint allows authenticated users to retrieve their profile information.
-
-Required the current user and blacklist the token provided in cookie or headers
-
 ```
 GET /users/profile
 ```
@@ -331,13 +382,100 @@ The request must include the following headers:
 }
 ```
 
+### Get Captain Profile
+```
+GET /captains/profile
+```
+
+#### Headers
+The request must include the following headers:
+
+| Header        | Type   | Required | Description                       |
+|---------------|--------|----------|-----------------------------------|
+| Authorization | string | Yes      | Bearer token for authentication   |
+
+#### Response
+
+##### Success Response (200)
+```json
+{
+  "captain": {
+    "_id": "captain_id_here",
+    "fullname": {
+      "firstname": "Jane",
+      "lastname": "Doe"
+    },
+    "email": "jane.doe@example.com",
+    "vehicle": {
+      "color": "Red",
+      "plate": "XYZ123",
+      "capacity": 4,
+      "vehicleType": "car"
+    }
+  }
+}
+```
+
+##### Error Responses
+
+###### Unauthorized (401)
+```json
+{
+  "status": "error",
+  "message": "Unauthorized"
+}
+```
+
+###### Internal Server Error (500)
+```json
+{
+  "status": "error",
+  "message": "Internal server error occurred"
+}
+```
+
 ### Logout User
-Logout the current user and blacklis the token provided in cookie or headers
-
-The `/users/logout` endpoint allows authenticated users to log out by invalidating their token.
-
 ```
 GET /users/logout
+```
+
+#### Headers
+The request must include the following headers:
+
+| Header        | Type   | Required | Description                       |
+|---------------|--------|----------|-----------------------------------|
+| Authorization | string | Yes      | Bearer token for authentication   |
+
+#### Response
+
+##### Success Response (200)
+```json
+{
+  "message": "Logged out successfully"
+}
+```
+
+##### Error Responses
+
+###### Bad Request (400)
+```json
+{
+  "status": "error",
+  "message": "Token not provided"
+}
+```
+
+###### Internal Server Error (500)
+```json
+{
+  "status": "error",
+  "message": "Internal server error occurred"
+}
+```
+
+### Logout Captain
+```
+GET /captains/logout
 ```
 
 #### Headers
@@ -428,6 +566,25 @@ curl -X POST https://api.example.com/captains/register \
   }'
 ```
 
+```bash
+curl -X POST https://api.example.com/captains/login \
+  -H "Content-Type: application/json" \
+  -d '{
+    "email": "jane.doe@example.com",
+    "password": "SecurePass123"
+  }'
+```
+
+```bash
+curl -X GET https://api.example.com/captains/profile \
+  -H "Authorization: Bearer jwt_token_here"
+```
+
+```bash
+curl -X GET https://api.example.com/captains/logout \
+  -H "Authorization: Bearer jwt_token_here"
+```
+
 ### JavaScript (Fetch API)
 ```javascript
 fetch('https://api.example.com/users/register', {
@@ -509,6 +666,46 @@ fetch('https://api.example.com/captains/register', {
       vehicleType: 'car'
     }
   })
+})
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.error('Error:', error));
+```
+
+```javascript
+fetch('https://api.example.com/captains/login', {
+  method: 'POST',
+  headers: {
+    'Content-Type': 'application/json'
+  },
+  body: JSON.stringify({
+    email: 'jane.doe@example.com',
+    password: 'SecurePass123'
+  })
+})
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.error('Error:', error));
+```
+
+```javascript
+fetch('https://api.example.com/captains/profile', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer jwt_token_here'
+  }
+})
+.then(response => response.json())
+.then(data => console.log(data))
+.catch(error => console.error('Error:', error));
+```
+
+```javascript
+fetch('https://api.example.com/captains/logout', {
+  method: 'GET',
+  headers: {
+    'Authorization': 'Bearer jwt_token_here'
+  }
 })
 .then(response => response.json())
 .then(data => console.log(data))
