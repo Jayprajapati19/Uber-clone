@@ -34,7 +34,7 @@ function CaptainSignup() {
                 <img className='w-20 mb-3 ' src="https://www.svgrepo.com/show/505031/uber-driver.svg" alt="logo" />
 
                 <form onSubmit={submitHandler}>
-                    <h3 className='text-lg font-medium mb-2'>What's Your Name</h3>
+                    <h3 className='text-lg w-full font-medium mb-2'>What's Your Captain's  Name</h3>
 
                     <div className='flex gap-4 mb-6'>
                         <input
@@ -55,7 +55,7 @@ function CaptainSignup() {
                         />
                     </div>
 
-                    <h3 className='text-lg font-medium mb-2'>What's Your Email</h3>
+                    <h3 className='text-lg font-medium mb-2'>What's Your Captain's Email</h3>
 
                     <input
                         required
