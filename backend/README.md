@@ -475,7 +475,7 @@ The request must include the following headers:
 
 ### Logout Captain
 ```
-GET /captains/logout
+GET logout
 ```
 
 #### Headers
@@ -548,7 +548,7 @@ curl -X GET https://api.example.com/users/logout \
 ```
 
 ```bash
-curl -X POST https://api.example.com/captains/register \
+curl -X POST https://api.example.comregister \
   -H "Content-Type: application/json" \
   -d '{
     "fullname": {
