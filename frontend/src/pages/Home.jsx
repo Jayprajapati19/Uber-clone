@@ -16,13 +16,15 @@ function Home() {
     const vehiclePanelRef = useRef(null);
     const confirmRidePanelRef = useRef(null);
     const panelRef = useRef(null);
+    const waitingForDriverRef = useRef(null);
     const panelCloseRef = useRef(null);
     const vehicleFoundRef = useRef(null);
+
     const [vehiclepanel, setVehiclePanel] = useState(false)
     const [confirmRidePanel, setConfirmRidePanel] = useState(false);
     const [vehicleFound, setVehicleFound] = useState(false);
 
-
+    const [waitingForDriver, setSetWaitingForDriver] = useState(false);
 
 
     const submitHandler = (e) => {
@@ -96,6 +98,23 @@ function Home() {
         }
     }, [vehicleFound])
 
+    useGSAP(function () {
+        if (waitingForDriver) {
+            gsap.to(waitingForDriverRef.current, {
+                transform: 'translateY(0%)'
+
+            })
+        } else {
+            gsap.to(waitingForDriverRef.current, {
+                transform: 'translateY(100%)'
+
+            })
+        }
+    }, [waitingForDriver])
+
+
+
+
     return (
         <div className='h-screen relative overflow-hidden'>
             <img className='w-16 absolute left-5 top-5' src="https://upload.wikimedia.org/wikipedia/commons/c/cc/Uber_logo_2018.png" alt="logo" />
@@ -163,8 +182,8 @@ function Home() {
             <div ref={vehicleFoundRef} className=' fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12' >
                 <LookingForDriver setVehicleFound={setVehicleFound} />
             </div>
-            <div ref={vehicleFoundRef} className=' fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12' >
-                <WaitingForDriver />
+            <div ref={waitingForDriverRef} className=' fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12' >
+                <WaitingForDriver waitingForDriver={waitingForDriver} />
             </div>
         </div >
     )

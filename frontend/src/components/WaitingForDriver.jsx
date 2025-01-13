@@ -1,19 +1,19 @@
 import React from 'react'
 
-const WaitingForDriver = () => {
+const WaitingForDriver = (props) => {
     return (
         <div>
             <h5
                 onClick={() => {
-                    props.setConfirmRidePanel(false)
+                    props.waitingForDriver(false)
                 }} className='p-1 text-center w-[93%] absolute top-0 '><i className="text-3xl text-gray-400 ri-arrow-down-wide-line"></i>
             </h5>
 
             <div className='flex items-center justify-between'>
                 <img className='h-12' src="https://www.uber-assets.com/image/upload/f_auto,q_auto:eco,c_fill,h_552,w_552/v1555367310/assets/30/51e602-10bb-4e65-b122-e394d80a9c47/original/Final_UberX.png" alt="car" />
-                <div>
+                <div className='text-right '>
                     <h2 className='text-lg font-medium '>Jayy</h2>
-                    <h4>GJ 02 JD 1909</h4>
+                    <h4 className='text-xl font-semibold -mt-1 mb-10 '>GJ 02 JD 1909</h4>
                     <p className='text-sm text-gray-600'>Maruti Suzuki Alto</p>
 
                 </div>
