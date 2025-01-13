@@ -21,7 +21,7 @@ const LookingForDriver = (props) => {
                         </div>
                     </div>
                     <div className='flex items-center gap-5 p-3 border-b-2 '>
-                        <i class="text-lg ri-map-pin-2-fill"></i>
+                        <i className="text-lg ri-map-pin-2-fill"></i>
 
                         <div>
                             <h3 className='text-lg font-medium '>562/11-A</h3>

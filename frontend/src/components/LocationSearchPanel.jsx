@@ -2,7 +2,7 @@ import React from 'react'
 
 const LocationSearchPanel = (props) => {
 
-    console.log(props);
+    // console.log(props);
 
 
     // smaple array for lacation
