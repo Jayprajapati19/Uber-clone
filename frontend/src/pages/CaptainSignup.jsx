@@ -104,7 +104,7 @@ function CaptainSignup() {
                     <input
                         value={password}
                         onChange={(e) => setPassword(e.target.value)}
-                        className='bg-[#eeeeee] mb-6 rounded px-4 py-2 border w-full text-lg placeholder:text-base'
+                        className='bg-[#eeeweee] mb-6 rounded px-4 py-2 border w-full text-lg placeholder:text-base'
                         required
                         type="password"
                         placeholder='password'
