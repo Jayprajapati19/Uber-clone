@@ -1,16 +1,16 @@
 import React from 'react'
 
-const RidePopUp = (props) => {
 
+const ConfirmRidePopUp = (props) => {
     return (
-        <div>
+        <div >
 
             <h5
                 onClick={() => {
-                    props.setRidePopupPanel(false);
+                    props.setConfirmRidePopupPanel(false);
                 }} className='p-1 text-center w-[93%] absolute top-0 '><i className="text-3xl text-gray-400 ri-arrow-down-wide-line"></i>
             </h5>
-            <h3 className='text-2xl font-semibold mb-5 '>New Ride Available! </h3>
+            <h3 className='text-2xl font-semibold mb-5'>Confirm this ride to start</h3>
 
             <div className='flex items-center justify-between p-3 bg-yellow-400 rounded-lg mt-4'>
                 <div className='flex items-center gap-3 '>
@@ -47,21 +47,19 @@ const RidePopUp = (props) => {
                     </div>
                 </div>
                 <button onClick={() => {
-                    props.setConfirmRidePopUpPanel(true);
 
-                }} className='w-full mt-5 bg-green-600 text-white font-semibold p-2 rounded-lg ' >Accept
+                }} className='w-full mt-5 bg-green-600 text-white font-semibold p-2 rounded-lg ' >Confirm
                 </button>
 
                 <button onClick={() => {
-                    props.setRidePopupPanel(false);
-                }} className='w-full mt-1 bg-gray-300 text-gray-700 font-semibold p-2 rounded-lg ' >Ignore
+                    props.setConfirmRidePopUpPanel(false);
+                }} className='w-full mt-1 bg-red-500 text-white font-semibold p-2 rounded-lg ' >Cancle
                 </button>
 
             </div>
 
         </div>
-
     )
 }
 
-export default RidePopUp
+export default ConfirmRidePopUp
