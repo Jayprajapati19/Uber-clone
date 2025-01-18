@@ -28,3 +28,10 @@ router.get(
 );
 
 module.exports = router;
+
+router.get(
+  "/get-suggestions",
+  query("input").isString().isLength({ min: 3 }),
+  authMiddleware.authUser,
+  mapController.getSuggestions
+);

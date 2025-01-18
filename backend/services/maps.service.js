@@ -93,3 +93,28 @@ module.exports.getDirections = async (origin, destination, params = {}) => {
     throw new Error("Unable to fetch directions. Please try again later.");
   }
 };
+
+module.exports.getAutoCompleteSuggestions = async (input) => {
+  if (!input) {
+    throw new Error("Query is required");
+
+    const apiKey = "AlzaSyjC65tR83Ij8isSZU6q3S_pEfZOkcwmFKJ"; // Replace with your actual API key
+    const url = `https://maps.gomaps.pro/maps/api/place/autocomplete/json?input=${encodeURIComponent(
+      input
+    )}&types=(regions)&language=en&key=${apiKey}`;
+
+    try {
+      const response = await axios.get(url);
+      if (response.data.status === "OK") {
+        return response.data.predictions;
+      } else {
+        throw new Error(
+          `API error: ${response.data.error_message || response.data.status}`
+        );
+      }
+    } catch (err) {
+      console.log(err);
+      throw err;
+    }
+  }
+};
