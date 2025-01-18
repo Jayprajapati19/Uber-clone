@@ -8,6 +8,7 @@ const connectToDb = require("./db/db"); // Ensure this is properly implemented
 const userRoutes = require("./routes/user.routes");
 const captainRoutes = require("./routes/captain.routes");
 const mapsRoutes = require("./routes/maps.routes");
+const rideRoutes = require("./routes/ride.routes");
 
 const app = express();
 
@@ -37,6 +38,7 @@ app.get("/", (req, res) => {
 app.use("/users", userRoutes);
 app.use("/captains", captainRoutes);
 app.use("/maps", mapsRoutes);
+app.use("/rides", rideRoutes);
 
 // Error handling middleware
 app.use((err, req, res, next) => {
