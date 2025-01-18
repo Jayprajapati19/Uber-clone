@@ -338,6 +338,64 @@ The request body must be in JSON format and include the following fields:
 }
 ```
 
+### Get Fare
+```
+GET /rides/get-fare
+```
+
+#### Request Parameters
+The request must include the following query parameters:
+
+| Parameter    | Type   | Required | Description                       |
+|--------------|--------|----------|-----------------------------------|
+| pickup       | string | Yes      | Pickup location address           |
+| destination  | string | Yes      | Destination location address      |
+
+#### Example Request
+```bash
+curl -X GET 'https://api.example.com/rides/get-fare?pickup=123+Main+St&destination=456+Elm+St' \
+  -H "Authorization: Bearer jwt_token_here"
+```
+
+#### Response
+
+##### Success Response (200)
+```json
+{
+  "auto": 50,
+  "car": 100,
+  "moto": 30
+}
+```
+
+##### Error Responses
+
+###### Validation Error (400)
+```json
+{
+  "errors": [
+    {
+      "msg": "Invalid pickup address",
+      "param": "pickup",
+      "location": "query"
+    },
+    {
+      "msg": "Invalid destination address",
+      "param": "destination",
+      "location": "query"
+    }
+  ]
+}
+```
+
+###### Internal Server Error (500)
+```json
+{
+  "status": "error",
+  "message": "Internal server error occurred"
+}
+```
+
 ### Get User Profile
 ```
 GET /users/profile
