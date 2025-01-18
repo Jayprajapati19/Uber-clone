@@ -27,11 +27,11 @@ router.get(
   mapController.getDirections
 );
 
-module.exports = router;
-
 router.get(
   "/get-suggestions",
   query("input").isString().isLength({ min: 3 }),
   authMiddleware.authUser,
-  mapController.getSuggestions
+  mapController.getAutoCompleteSuggestions
 );
+
+module.exports = router;

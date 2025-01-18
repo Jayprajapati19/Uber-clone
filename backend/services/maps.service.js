@@ -97,24 +97,24 @@ module.exports.getDirections = async (origin, destination, params = {}) => {
 module.exports.getAutoCompleteSuggestions = async (input) => {
   if (!input) {
     throw new Error("Query is required");
+  }
 
-    const apiKey = "AlzaSyjC65tR83Ij8isSZU6q3S_pEfZOkcwmFKJ"; // Replace with your actual API key
-    const url = `https://maps.gomaps.pro/maps/api/place/autocomplete/json?input=${encodeURIComponent(
-      input
-    )}&types=(regions)&language=en&key=${apiKey}`;
+  const apiKey = "AlzaSyjC65tR83Ij8isSZU6q3S_pEfZOkcwmFKJ"; // Replace with your actual API key
+  const url = `https://maps.gomaps.pro/maps/api/place/autocomplete/json?input=${encodeURIComponent(
+    input
+  )}&types=(regions)&language=en&key=${apiKey}`;
 
-    try {
-      const response = await axios.get(url);
-      if (response.data.status === "OK") {
-        return response.data.predictions;
-      } else {
-        throw new Error(
-          `API error: ${response.data.error_message || response.data.status}`
-        );
-      }
-    } catch (err) {
-      console.log(err);
-      throw err;
+  try {
+    const response = await axios.get(url);
+    if (response.data.status === "OK") {
+      return response.data.predictions;
+    } else {
+      throw new Error(
+        `API error: ${response.data.error_message || response.data.status}`
+      );
     }
+  } catch (err) {
+    console.error("Error fetching suggestions:", err.message, err.stack);
+    throw new Error("Unable to fetch suggestions. Please try again later.");
   }
 };
