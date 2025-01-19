@@ -72,3 +72,5 @@ const ConfirmRide = ({
 }
 
 export default ConfirmRide
+
+// 8:50
