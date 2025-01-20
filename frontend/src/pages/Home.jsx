@@ -276,7 +276,13 @@ function Home() {
             </div>
 
             <div ref={vehicleFoundRef} className=' fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12' >
-                <LookingForDriver setVehicleFound={setVehicleFound} />
+                <LookingForDriver
+                    setVehicleFound={setVehicleFound}
+                    pickup={pickup}
+                    destination={destination}
+                    fare={fare}
+                    vehicleType={vehicleType}
+                />
             </div>
             <div ref={waitingForDriverRef} className=' fixed w-full z-10 bottom-0 translate-y-full bg-white px-3 py-6 pt-12' >
                 <WaitingForDriver waitingForDriver={waitingForDriver} />
