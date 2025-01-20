@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react'
+import React, { useEffect, useRef, useState } from 'react'
 import axios from 'axios'
 import { useGSAP } from "@gsap/react"
 import gsap from 'gsap'
@@ -8,6 +8,9 @@ import VehiclePanel from '../components/VehiclePanel';
 import ConfirmRide from '../components/ConfirmRide';
 import LookingForDriver from '../components/LookingForDriver';
 import WaitingForDriver from '../components/WaitingForDriver';
+import { SocketContext } from '../context/SocketContext'
+import { useContext } from 'react'
+import { UserDataContext } from '../context/UserContext'
 
 
 function Home() {
@@ -20,18 +23,24 @@ function Home() {
     const waitingForDriverRef = useRef(null);
     const panelCloseRef = useRef(null);
     const vehicleFoundRef = useRef(null);
-
     const [vehiclepanel, setVehiclePanel] = useState(false)
     const [confirmRidePanel, setConfirmRidePanel] = useState(false);
     const [vehicleFound, setVehicleFound] = useState(false);
-
     const [waitingForDriver, setSetWaitingForDriver] = useState(false);
-
     const [suggestions, setSuggestions] = useState([])
     const [activeField, setActiveField] = useState(null)
     const [loading, setLoading] = useState(false)
     const [fare, setFare] = useState({})
     const [vehicleType, setVehicleType] = useState(null)
+
+
+    const { socket } = useContext(SocketContext)
+    const { user } = useContext(UserDataContext)
+
+    useEffect(() => {
+        socket.emit("join", { userType: "user", userId: user._id })
+    }, [user])
+
 
     const handleLocationInput = async (e, field) => {
         const value = e.target.value

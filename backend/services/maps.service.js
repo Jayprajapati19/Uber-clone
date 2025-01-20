@@ -1,4 +1,5 @@
 const axios = require("axios");
+const captainModel = require("../models/captain.model");
 
 module.exports.getAddressCoordinate = async (address) => {
   const apiKey = "AlzaSyjC65tR83Ij8isSZU6q3S_pEfZOkcwmFKJ"; // Replace with your actual API key
@@ -117,4 +118,18 @@ module.exports.getAutoCompleteSuggestions = async (input) => {
     console.error("Error fetching suggestions:", err.message, err.stack);
     throw new Error("Unable to fetch suggestions. Please try again later.");
   }
+};
+
+module.exports.getCaptainsInTheRadius = async (ltd, lng, radius) => {
+  // radius in km
+
+  const captains = await captainModel.find({
+    location: {
+      $geoWithin: {
+        $centerSphere: [[ltd, lng], radius / 6371],
+      },
+    },
+  });
+
+  return captains;
 };
