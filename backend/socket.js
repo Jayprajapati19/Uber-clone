@@ -1,11 +1,11 @@
-const { Server } = require("socket.io");
+const socketIo = require("socket.io");
 const userModel = require("./models/user.model");
 const captainModel = require("./models/captain.model");
 
-let io = null;
+let io;
 
-const initializeSocket = (server) => {
-  io = new Server(server, {
+function initializeSocket(server) {
+  io = socketIo(server, {
     cors: {
       origin: "*",
       methods: ["GET", "POST"],
@@ -13,7 +13,7 @@ const initializeSocket = (server) => {
   });
 
   io.on("connection", (socket) => {
-    console.log("Client connected:", socket.id);
+    console.log(`Client connected: ${socket.id}`);
 
     socket.on("join", async (data) => {
       const { userId, userType } = data;
@@ -23,11 +23,6 @@ const initializeSocket = (server) => {
       } else if (userType === "captain") {
         await captainModel.findByIdAndUpdate(userId, { socketId: socket.id });
       }
-    });
-
-    socket.on("join", ({ userType, userId }) => {
-      socket.join(userId);
-      console.log(`${userType} ${userId} joined a room`);
     });
 
     socket.on("update-location-captain", async (data) => {
@@ -46,22 +41,19 @@ const initializeSocket = (server) => {
     });
 
     socket.on("disconnect", () => {
-      console.log("Client disconnected:", socket.id);
+      console.log(`Client disconnected: ${socket.id}`);
     });
   });
+}
 
-  return io;
-};
+const sendMessageToSocketId = (socketId, messageObject) => {
+  console.log(messageObject);
 
-const sendMessageToSocketId = (socketId, eventName, data) => {
-  if (!io) {
-    console.error("Socket.io not initialized");
-    return;
+  if (io) {
+    io.to(socketId).emit(messageObject.event, messageObject.data);
+  } else {
+    console.log("Socket.io not initialized.");
   }
-  io.to(socketId).emit(eventName, data);
 };
 
-module.exports = {
-  initializeSocket,
-  sendMessageToSocketId,
-};
+module.exports = { initializeSocket, sendMessageToSocketId };
