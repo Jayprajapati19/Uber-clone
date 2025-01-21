@@ -37,35 +37,37 @@ const Home = () => {
 
     const navigate = useNavigate()
 
-    const { socket } = useContext(SocketContext)
+    const { socket, isConnected } = useContext(SocketContext)
     const { user } = useContext(UserDataContext)
 
     useEffect(() => {
-        // Only emit if user exists and has _id
-        if (user && user._id) {
+        if (socket && user?._id && isConnected) {
+            console.log('Emitting join event:', { userType: "user", userId: user._id });
             socket.emit("join", { userType: "user", userId: user._id });
         }
-    }, [user, socket]);
+    }, [socket, user, isConnected]);
 
-    // Move socket listeners into useEffect to prevent multiple bindings
     useEffect(() => {
+        if (!socket || !isConnected) return;
+
         socket.on('ride-confirmed', ride => {
+            console.log('Ride confirmed:', ride);
             setVehicleFound(false);
             setWaitingForDriver(true);
             setRide(ride);
         });
 
         socket.on('ride-started', ride => {
+            console.log('Ride started:', ride);
             setWaitingForDriver(false);
             navigate('/riding', { state: { ride } });
         });
 
-        // Cleanup listeners
         return () => {
             socket.off('ride-confirmed');
             socket.off('ride-started');
         };
-    }, [socket, navigate]);
+    }, [socket, isConnected]);
 
     const handlePickupChange = async (e) => {
         setPickup(e.target.value)
@@ -192,17 +194,37 @@ const Home = () => {
     }
 
     async function createRide() {
-        const response = await axios.post(`${import.meta.env.VITE_BASE_URL}/rides/create`, {
-            pickup,
-            destination,
-            vehicleType
-        }, {
-            headers: {
-                Authorization: `Bearer ${localStorage.getItem('token')}`
+        try {
+            if (!pickup || !destination || !vehicleType || !fare[vehicleType]) {
+                alert('Please select all required fields');
+                return;
             }
-        })
 
+            const response = await axios.post(
+                `${import.meta.env.VITE_BASE_URL}/rides/create`,
+                {
+                    pickup,
+                    destination,
+                    vehicleType,
+                    fare: fare[vehicleType],
+                    otp: Math.floor(1000 + Math.random() * 9000).toString()
+                },
+                {
+                    headers: {
+                        Authorization: `Bearer ${localStorage.getItem('token')}`
+                    }
+                }
+            );
 
+            if (response.data.ride) {
+                setVehicleFound(true);
+                setConfirmRidePanel(false);
+            }
+        } catch (error) {
+            console.error('Create ride error:', error.response?.data || error);
+            alert(error.response?.data?.message || 'Failed to create ride');
+            setConfirmRidePanel(false);
+        }
     }
 
     return (

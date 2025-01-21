@@ -23,11 +23,14 @@ module.exports.createRide = async (req, res) => {
 
     const pickupCoordinates = await mapService.getAddressCoordinate(pickup);
 
+    // console.log(pickupCoordinates);
+
     const captainsInRadius = await mapService.getCaptainsInTheRadius(
       pickupCoordinates.ltd,
       pickupCoordinates.lng,
       2
     );
+    // console.log(captainsInRadius);
 
     ride.otp = "";
 
@@ -88,7 +91,7 @@ module.exports.confirmRide = async (req, res) => {
     return res.status(500).json({ message: err.message });
   }
 };
-
+// 10:41
 module.exports.startRide = async (req, res) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {

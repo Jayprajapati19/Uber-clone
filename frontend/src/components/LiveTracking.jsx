@@ -1,31 +1,63 @@
 import React, { useState, useEffect } from 'react';
+import axios from 'axios';
 
 const LiveTracking = () => {
-    const [mapImage, setMapImage] = useState(null);
     const [currentPosition, setCurrentPosition] = useState(null);
-    const apiKey = "AlzaSyjC65tR83Ij8isSZU6q3S_pEfZOkcwmFKJ";
+    const [map, setMap] = useState(null);
+    const [marker, setMarker] = useState(null);
 
     useEffect(() => {
-        if (navigator.geolocation) {
+        // Initialize GoMaps
+        const initMap = () => {
+            const mapInstance = new gomaps.Map(document.getElementById('map'), {
+                center: { lat: 23.0225, lng: 72.5714 }, // Default to Ahmedabad
+                zoom: 15,
+                mapTypeControl: false,
+                fullscreenControl: false
+            });
+            setMap(mapInstance);
+        };
+
+        // Load GoMaps script
+        const script = document.createElement('script');
+        script.src = 'https://maps.gomaps.pro/maps/api/js?key=AlzaSyjC65tR83Ij8isSZU6q3S_pEfZOkcwmFKJ';
+        script.async = true;
+        script.onload = initMap;
+        document.head.appendChild(script);
+
+        return () => {
+            document.head.removeChild(script);
+        };
+    }, []);
+
+    useEffect(() => {
+        if (navigator.geolocation && map) {
             const watchId = navigator.geolocation.watchPosition(
-                async (position) => {
+                (position) => {
                     const { latitude, longitude } = position.coords;
-                    setCurrentPosition({ lat: latitude, lng: longitude });
+                    const newPosition = { lat: latitude, lng: longitude };
+                    setCurrentPosition(newPosition);
 
-                    // Get static map image from GoMaps
-                    const mapUrl = `https://maps.gomaps.pro/maps/api/staticmap?center=${latitude},${longitude}&zoom=15&size=800x800&markers=color:red%7C${latitude},${longitude}&key=${apiKey}`;
-
-                    try {
-                        const response = await fetch(mapUrl);
-                        if (response.ok) {
-                            setMapImage(mapUrl);
-                        }
-                    } catch (error) {
-                        console.error('Error loading map:', error);
+                    // Update marker position
+                    if (marker) {
+                        marker.setPosition(newPosition);
+                    } else {
+                        const newMarker = new gomaps.Marker({
+                            position: newPosition,
+                            map: map,
+                            icon: {
+                                url: 'path_to_your_vehicle_icon.png',
+                                scaledSize: new gomaps.Size(32, 32)
+                            }
+                        });
+                        setMarker(newMarker);
                     }
+
+                    // Center map on new position
+                    map.setCenter(newPosition);
                 },
                 (error) => {
-                    console.error("Error getting location:", error);
+                    console.error("Error watching location:", error);
                 },
                 {
                     enableHighAccuracy: true,
@@ -36,27 +68,15 @@ const LiveTracking = () => {
 
             return () => navigator.geolocation.clearWatch(watchId);
         }
-    }, []);
-
-    if (!currentPosition || !mapImage) {
-        return (
-            <div className="h-full w-full flex items-center justify-center bg-gray-100">
-                <p>Loading map...</p>
-            </div>
-        );
-    }
+    }, [map]);
 
     return (
-        <div className="w-full h-full relative">
-            <img
-                src={mapImage}
-                alt="Map"
-                className="w-full h-full object-cover"
-            />
-            <div className="absolute bottom-4 right-4 bg-white p-2 rounded shadow">
-                <p>Lat: {currentPosition.lat.toFixed(6)}</p>
-                <p>Lng: {currentPosition.lng.toFixed(6)}</p>
-            </div>
+        <div id="map" className="w-full h-full">
+            {!map && (
+                <div className="h-full w-full flex items-center justify-center bg-gray-100">
+                    <p>Loading map...</p>
+                </div>
+            )}
         </div>
     );
 };
