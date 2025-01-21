@@ -34,15 +34,22 @@ function CaptainHome() {
         const updateLocation = () => {
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(position => {
+                    const latitude = parseFloat(position.coords.latitude);
+                    const longitude = parseFloat(position.coords.longitude);
 
-                    socket.emit('update-location-captain', {
-                        userId: captain._id,
-                        location: {
-                            ltd: position.coords.latitude,
-                            lng: position.coords.longitude
-                        }
-                    })
-                })
+                    // Only emit if we have valid coordinates
+                    if (!isNaN(latitude) && !isNaN(longitude)) {
+                        socket.emit('update-location-captain', {
+                            userId: captain._id,
+                            location: {
+                                ltd: latitude,
+                                lng: longitude
+                            }
+                        });
+                    }
+                }, (error) => {
+                    console.error("Error getting location:", error);
+                });
             }
         }
 
@@ -75,7 +82,7 @@ function CaptainHome() {
         })
 
         setRidePopupPanel(false)
-        setConfirmRidePopupPanel(true)
+        setConfirmRidePopUpPanel(true)
 
     }
 
@@ -140,11 +147,14 @@ function CaptainHome() {
                     setConfirmRidePopUpPanel={setConfirmRidePopUpPanel}
                     confirmRide={confirmRide}
                 />
-
             </div>
 
             <div ref={confirmRidePopupPanelRef} className=' fixed w-full h-screen z-10 bottom-0 translate-y-full bg-white px-3 py-10 pt-12' >
-                <ConfirmRidePopUp setConfirmRidePopUpPanel={setConfirmRidePopUpPanel} setRidePopupPanel={setRidePopupPanel} />
+                <ConfirmRidePopUp
+                    ride={ride}
+
+                    setConfirmRidePopUpPanel={setConfirmRidePopUpPanel}
+                    setRidePopupPanel={setRidePopupPanel} />
             </div>
         </div>
     )
