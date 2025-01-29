@@ -1,12 +1,12 @@
 const express = require("express");
 const router = express.Router();
 const { body, query } = require("express-validator");
-const rideController = require("../controllers/ride.controller");
-const authMiddleware = require("../middlewares/auth.middleware");
+const RideController = require("../controllers/ride.controller");
+const authMidleware = require("../middlewares/auth.middleware");
 
 router.post(
   "/create",
-  authMiddleware.authUser,
+  authMidleware.authUser,
   body("pickup")
     .isString()
     .isLength({ min: 3 })
@@ -19,12 +19,12 @@ router.post(
     .isString()
     .isIn(["auto", "car", "moto"])
     .withMessage("Invalid vehicle type"),
-  rideController.createRide
+  RideController.createRide
 );
 
 router.get(
   "/get-fare",
-  authMiddleware.authUser,
+  authMidleware.authUser,
   query("pickup")
     .isString()
     .isLength({ min: 3 })
@@ -33,32 +33,27 @@ router.get(
     .isString()
     .isLength({ min: 3 })
     .withMessage("Invalid destination address"),
-  rideController.getFare
+  RideController.getFare
 );
 
 router.post(
   "/confirm",
-  authMiddleware.authCaptain,
+  authMidleware.authCaptain,
   body("rideId").isMongoId().withMessage("Invalid ride id"),
-  rideController.confirmRide
-);
-
-router.get(
-  "/start-ride",
-  authMiddleware.authCaptain,
-  query("rideId").isMongoId().withMessage("Invalid ride id"),
-  query("otp")
-    .isString()
-    .isLength({ min: 6, max: 6 })
-    .withMessage("Invalid OTP"),
-  rideController.startRide
+  RideController.confirmRide
 );
 
 router.post(
-  "/end-ride",
-  authMiddleware.authCaptain,
+  "/start-ride",
+  authMidleware.authCaptain,
   body("rideId").isMongoId().withMessage("Invalid ride id"),
-  rideController.endRide
+  body("otp")
+    .isString()
+    .isLength({ min: 6, max: 6 })
+    .withMessage("Invalid OTP"),
+  RideController.startRide
 );
+
+router.post('/end-ride', authMidleware.authCaptain, body('rideId').isMongoId().withMessage('Invalid ride id'), RideController.endRide);
 
 module.exports = router;

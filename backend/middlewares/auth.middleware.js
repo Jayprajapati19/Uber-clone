@@ -1,22 +1,20 @@
 const userModel = require("../models/user.model");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
-const blackListTokenModel = require("../models/blackListToken.model");
+const blacklistTokenModel = require("../models/blacklistToken.model");
 const captainModel = require("../models/captain.model");
-
-// middleware for
 
 module.exports.authUser = async (req, res, next) => {
   const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
 
   if (!token) {
-    return res.status(401).json({ message: "Unauthorized" });
+    return res.status(401).json({ message: "unauthorized" });
   }
 
-  const isBlackListed = await blackListTokenModel.findOne({ token: token });
+  const isBlackListed = await blacklistTokenModel.findOne({ token: token });
 
   if (isBlackListed) {
-    return res.status(401).json({ message: "Unauthorized" });
+    return res.status(401).json({ message: "unauthorised" });
   }
 
   try {
@@ -26,7 +24,7 @@ module.exports.authUser = async (req, res, next) => {
     req.user = user;
 
     return next();
-  } catch (err) {
+  } catch (error) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 };
@@ -34,16 +32,14 @@ module.exports.authUser = async (req, res, next) => {
 module.exports.authCaptain = async (req, res, next) => {
   const token = req.cookies.token || req.headers.authorization?.split(" ")[1];
 
-  // console.log(token);
-
   if (!token) {
-    return res.status(401).json({ message: "Unauthorized" });
+    return res.status(401).json({ message: "unauthorized" });
   }
 
-  const isBlackListed = await blackListTokenModel.findOne({ token: token });
+  const isBlackListed = await blacklistTokenModel.findOne({ token: token });
 
   if (isBlackListed) {
-    return res.status(401).json({ message: "Unauthorized" });
+    return res.status(401).json({ message: "unauthorised" });
   }
 
   try {
@@ -51,8 +47,9 @@ module.exports.authCaptain = async (req, res, next) => {
     const captain = await captainModel.findById(decoded._id);
 
     req.captain = captain;
+
     return next();
-  } catch (err) {
+  } catch (error) {
     return res.status(401).json({ message: "Unauthorized" });
   }
 };

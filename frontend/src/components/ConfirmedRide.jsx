@@ -1,15 +1,18 @@
-const LookingForDriver = (props) => {
+
+const ConfirmedRide = (props) => {
+  const vehicleType=props.vehicleType;
+  const fare = props.fare;
   return (
-    <div className="z-10">
+    <div>
       <h5
         onClick={() => {
-          props.setVehicleFound(false);
+          props.setConfirmRidePanel(false);
         }}
         className="text-center font-bold absolute p-1 top-0 w-[93%]"
       >
         <i className="text-3xl text-gray-200 ri-arrow-down-wide-line"></i>
       </h5>
-      <h3 className="text-2xl font-semibold">Looking for a Driver</h3>
+      <h3 className="text-2xl font-semibold">Confirm your Ride</h3>
 
       <div className="flex flex-col gap-2 justify-between items-center">
         <img
@@ -35,14 +38,21 @@ const LookingForDriver = (props) => {
           <div className="flex items-center gap-5 p-3">
             <i className="text-2xl ri-currency-fill"></i>
             <div>
-              <h3 className="text-xl font-medium">₹{props.fare[props.vehicleType]}</h3>
+              <h3 className="text-xl font-medium">₹{fare[vehicleType]}</h3>
               <p className="text-sm text-gray-600 ">Cash, Cash</p>
             </div>
           </div>
         </div>
+        <button onClick={() =>{
+            props.setVehicleFound(true);
+            props.setConfirmRidePanel(false);
+            props.createRide();
+        }} className="w-full mt-5 bg-green-600 text-white font-semibold p-2 rounded-lg">
+          Confirm
+        </button>
       </div>
     </div>
   );
 };
 
-export default LookingForDriver;
+export default ConfirmedRide;

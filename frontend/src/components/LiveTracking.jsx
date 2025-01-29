@@ -1,84 +1,128 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import { GoogleMap, MarkerF } from "@react-google-maps/api";
+import { useEffect, useState, useRef, useCallback } from "react";
+import { loadGoogleMapsApi } from "../utils/loadGoogleMapsApi";
+
+const containerStyle = {
+  width: "100%",
+  height: "100%"
+};
+
+const defaultPosition = {
+  lat: 23.0225, // Default to Ahmedabad
+  lng: 72.5714
+};
 
 const LiveTracking = () => {
-    const [currentPosition, setCurrentPosition] = useState(null);
-    const [map, setMap] = useState(null);
-    const [marker, setMarker] = useState(null);
+  const [currentPosition, setCurrentPosition] = useState(defaultPosition);
+  const [mapLoaded, setMapLoaded] = useState(false);
+  const [locationError, setLocationError] = useState(null);
+  const mapRef = useRef(null);
+  const retryTimeoutRef = useRef(null);
 
-    useEffect(() => {
-        // Initialize GoMaps
-        const initMap = () => {
-            const mapInstance = new gomaps.Map(document.getElementById('map'), {
-                center: { lat: 23.0225, lng: 72.5714 }, // Default to Ahmedabad
-                zoom: 15,
-                mapTypeControl: false,
-                fullscreenControl: false
-            });
-            setMap(mapInstance);
-        };
+  const getLocation = useCallback(async () => {
+    if (!navigator.geolocation) {
+      setLocationError("Geolocation is not supported");
+      return;
+    }
 
-        // Load GoMaps script
-        const script = document.createElement('script');
-        script.src = 'https://maps.gomaps.pro/maps/api/js?key=AlzaSyjC65tR83Ij8isSZU6q3S_pEfZOkcwmFKJ';
-        script.async = true;
-        script.onload = initMap;
-        document.head.appendChild(script);
-
-        return () => {
-            document.head.removeChild(script);
-        };
-    }, []);
-
-    useEffect(() => {
-        if (navigator.geolocation && map) {
-            const watchId = navigator.geolocation.watchPosition(
-                (position) => {
-                    const { latitude, longitude } = position.coords;
-                    const newPosition = { lat: latitude, lng: longitude };
-                    setCurrentPosition(newPosition);
-
-                    // Update marker position
-                    if (marker) {
-                        marker.setPosition(newPosition);
-                    } else {
-                        const newMarker = new gomaps.Marker({
-                            position: newPosition,
-                            map: map,
-                            icon: {
-                                url: 'path_to_your_vehicle_icon.png',
-                                scaledSize: new gomaps.Size(32, 32)
-                            }
-                        });
-                        setMarker(newMarker);
-                    }
-
-                    // Center map on new position
-                    map.setCenter(newPosition);
-                },
-                (error) => {
-                    console.error("Error watching location:", error);
-                },
-                {
-                    enableHighAccuracy: true,
-                    maximumAge: 0,
-                    timeout: 5000
-                }
-            );
-
-            return () => navigator.geolocation.clearWatch(watchId);
+    const getPositionPromise = new Promise((resolve, reject) => {
+      navigator.geolocation.getCurrentPosition(
+        (position) => {
+          setLocationError(null);
+          resolve({
+            lat: position.coords.latitude,
+            lng: position.coords.longitude,
+          });
+        },
+        (error) => {
+          console.warn("Geolocation error:", error);
+          setLocationError(error.message);
+          reject(error);
+        },
+        {
+          enableHighAccuracy: true,
+          timeout: 20000, // Increased timeout
+          maximumAge: 10000,
         }
-    }, [map]);
+      );
+    });
 
-    return (
-        <div id="map" className="w-full h-full">
-            {!map && (
-                <div className="h-full w-full flex items-center justify-center bg-gray-100">
-                    <p>Loading map...</p>
-                </div>
-            )}
+    try {
+      const position = await getPositionPromise;
+      setCurrentPosition(position);
+    } catch (error) {
+      // If location fails, retry after delay
+      clearTimeout(retryTimeoutRef.current);
+      retryTimeoutRef.current = setTimeout(() => {
+        getLocation();
+      }, 5000);
+    }
+  }, []);
+
+  useEffect(() => {
+    getLocation();
+    const intervalId = setInterval(getLocation, 10000);
+
+    return () => {
+      clearInterval(intervalId);
+      clearTimeout(retryTimeoutRef.current);
+    };
+  }, [getLocation]);
+
+  useEffect(() => {
+    loadGoogleMapsApi(import.meta.env.VITE_GOOGLE_MAPS_API)
+      .then(() => setMapLoaded(true))
+      .catch((error) => console.error("Error loading Google Maps API:", error));
+
+    return () => clearTimeout(retryTimeoutRef.current);
+  }, []);
+
+  if (!mapLoaded) {
+    return <div>Loading map...</div>;
+  }
+
+  return (
+    <div style={{ position: 'relative', width: '100%', height: '100%' }}>
+      {locationError && (
+        <div style={{
+          position: 'absolute',
+          top: 10,
+          left: '50%',
+          transform: 'translateX(-50%)',
+          zIndex: 1000,
+          backgroundColor: 'rgba(255,255,255,0.9)',
+          padding: '8px 16px',
+          borderRadius: '4px',
+          boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+        }}>
+          Using default location. Error: {locationError}
         </div>
-    );
+      )}
+      <GoogleMap
+        mapContainerStyle={containerStyle}
+        center={currentPosition}
+        zoom={15}
+        options={{
+          zoomControl: true,
+          streetViewControl: false,
+          mapTypeControl: false,
+          fullscreenControl: false,
+          draggable: true,
+          scrollwheel: true,
+          disableDoubleClickZoom: false,
+        }}
+        onLoad={(map) => (mapRef.current = map)}
+      >
+        <MarkerF
+          position={currentPosition}
+          icon={{
+            url: "https://maps.gstatic.com/mapfiles/api-3/images/spotlight-poi2_hdpi.png",
+            scaledSize: { width: 25, height: 37 },
+          }}
+        />
+      </GoogleMap>
+    </div>
+  );
 };
 
 export default LiveTracking;

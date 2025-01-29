@@ -1,62 +1,38 @@
-import React, { createContext, useEffect, useContext } from 'react';
-import { io } from 'socket.io-client';
+import { createContext, useContext, useEffect, useState } from "react";
+import { io } from "socket.io-client";
 
-export const SocketContext = createContext();
+const SocketContext = createContext();
 
-const socket = io(`${import.meta.env.VITE_BASE_URL}`, {
-    autoConnect: false,
-    reconnection: true
-});
+export const useSocket = () => useContext(SocketContext);
 
-export const SocketProvider = ({ children }) => {
-    useEffect(() => {
-        // Connect to socket server
-        socket.connect();
+const SocketProvider = ({ children }) => {
+  const [socket, setSocket] = useState(null);
 
-        // Connection event handlers
-        socket.on('connect', () => {
-            console.log('Connected to socket server');
-        });
+  useEffect(() => {
+    const newSocket = io(import.meta.env.VITE_BASE_URL, {
+      transports: ["websocket"],
+    });
 
-        socket.on('disconnect', () => {
-            console.log('Disconnected from socket server');
-        });
+    newSocket.on("connect", () => {
+      console.log("Connected to socket server:", newSocket.id);
+    });
 
-        socket.on('connect_error', (error) => {
-            console.log('Connection error:', error);
-        });
+    newSocket.on("disconnect", () => {
+      console.log("Disconnected from socket server");
+    });
 
-        // Cleanup on unmount
-        return () => {
-            socket.disconnect();
-        };
-    }, []);
+    setSocket(newSocket);
 
-    // Utility function to emit events
-    const emit = (eventName, data) => {
-        if (socket.connected) {
-            socket.emit(eventName, data);
-        }
+    return () => {
+      newSocket.close();
     };
+  }, []);
 
-    // Utility function to listen to events
-    const on = (eventName, callback) => {
-        socket.on(eventName, callback);
-        return () => socket.off(eventName, callback);
-    };
-
-    return (
-        <SocketContext.Provider value={{ socket }}>
-            {children}
-        </SocketContext.Provider>
-    );
+  return (
+    <SocketContext.Provider value={{ socket }}>
+      {children}
+    </SocketContext.Provider>
+  );
 };
 
-// Custom hook for using socket context
-export const useSocket = () => {
-    const context = useContext(SocketContext);
-    if (!context) {
-        throw new Error('useSocket must be used within a SocketProvider');
-    }
-    return context;
-};
+export default SocketProvider;
